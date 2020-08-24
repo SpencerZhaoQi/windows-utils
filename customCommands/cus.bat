@@ -1,118 +1,184 @@
 @echo off
 
-rem set commands and related paths
+rem ÉèÖÃÃüÁî±êÊ¶ÓëÂ·¾¶
 
 setlocal ENABLEDELAYEDEXPANSION
 
-echo [zq]$ _____________________________________________________________________________________________
+cd /d "%~dp0"
+
+echo [zq]$ ______________________________________________________________________________________________________
 echo [zq]$ _  V2.0 designed by zhaoqi at 2016 
 echo [zq]$ _
-echo [zq]$ _   ############     #####      ###########  ############      #####      ########### 
-echo [zq]$ _  ############    #########   ############# #############  ##########   #############
-echo [zq]$ _         ####    ###     ###       ###      ###           ####               ###     
-echo [zq]$ _        ####    ###       ###      ###      ###           ###                ###     
-echo [zq]$ _       ####     ###       ###      ###      ############# ############       ###     
-echo [zq]$ _      ####      ###       ###      ###      #############  ############      ###     
-echo [zq]$ _     ####       ###    ######      ###      ###                     ###      ###     
-echo [zq]$ _    ####         ###    #####      ###      ###                    ####      ###     
-echo [zq]$ _   ############   ##########       ###      #############  ###########       ###     
-echo [zq]$ _  ############      ##### ###      ###      ############      ######         ###     
-echo [zq]$ _____________________________________________________________________________________________
+echo [zq]$ _      #####     ##########    ############  ####      ###     #######   ############  ##########   
+echo [zq]$ _   ##########   ############  ############# #####     ###   ######  ### ############# ############ 
+echo [zq]$ _  ####          ###       ### ###           ######    ###  ####         ###           ###       ###
+echo [zq]$ _  ###           ###       ### ###           ### ###   ### ####          ###           ###       ###
+echo [zq]$ _  ############  ############  ############  ###  ###  ### ###           ############  ############ 
+echo [zq]$ _   ############ ##########    ############  ###   ####### ###           ############  ##########   
+echo [zq]$ _            ### ###           ###           ###    ###### ####          ###           ######        
+echo [zq]$ _           #### ###           ###           ###     #####  ####         ###           ###  ###     
+echo [zq]$ _   ###########  ###           ############# ###      ####   ######  ### ############# ###    ####   
+echo [zq]$ _      ######    ###           ############  ###       ###     #######   ############  ###      #### 
+echo [zq]$ _______________________________________________________________________________________________________
 
-rem read content of the config file
+
+
+rem --------------------------------------------------------------------------------------------------------------
+rem ´ÓÅäÖÃÎÄ¼þÖÐ¶ÁÈ¡ÄÚÈÝ
 :InitConfigFile
 rem set ROOT=%cd%
 set MAIN_FILE=%~dp0\cus.bat
-rem There are two possible paths for the main config file path. 1 user main path, 2 current path. I will check the user main path firstly.
+rem ÃüÁîÂ·¾¶ÅäÖÃÎÄ¼þÏÈ´ÓÓÃ»§Ä¿Â¼È¡£¬Èç¹ûÃ»ÓÐÔò´ÓÃüÁîÖ´ÐÐµÄµ±Ç°Ä¿Â¼È¡
 set CONFIG_FILE=%UserProfile%\cusAppMapping.ini
 if not exist %CONFIG_FILE% (
 	set CONFIG_FILE=%~dp0\cusAppMapping.ini
 ) 
 echo [zq]$ currently use %CONFIG_FILE%
-set all=ls
+rem ÉèÖÃ¹ÌÓÐÃüÁî
+set inherent=ls,edit,editCommands,admin,exit
+set commands=ls
 FOR /F "tokens=1,2 delims==" %%i in (%CONFIG_FILE%) DO (
  set %%i=%%j
- set all=!all!,%%i
+ set commands=!commands!,%%i
 )
+set all=!inherent!,!commands!
 
-rem å¦‚æžœæ‰§è¡Œæ—¶æŒ‡å®šäº†åº”ç”¨å‚æ•°ï¼Œåˆ™ç›´æŽ¥æ‰“å¼€å‚æ•°æ‰€å¯¹åº”çš„ç›®å½•
-set str=%1
-if defined str (
+
+rem --------------------------------------------------------------------------------------------------------------
+rem ÉèÖÃÓ¦ÓÃ³ÌÐòÖ´ÐÐ´ÎÊý£¬Ä¬ÈÏÎª1
+set runTimes=1
+
+rem Èç¹ûÖ´ÐÐÊ±Ö¸¶¨ÁËÓ¦ÓÃ²ÎÊý£¬ÔòÖ±½Ó´ò¿ª²ÎÊýËù¶ÔÓ¦µÄÄ¿Â¼
+set opr=%1
+set num=%2
+
+if defined opr (
 	set operate=%1
-	echo %operate%
-	goto OpenAndExit
+	rem Èç¹ûÎª¹ÌÓÐÃüÁî£¬Ôò½øÈëÃüÁîÑ¡Ôñ³ÌÐò£¬Èç¹ûÎªÆäËûÃüÁî£¬Ôò½øÈëÓ¦ÓÃ´ò¿ª¹Ø±Õ³ÌÐò
+	echo %inherent%|findstr "%1" >nul && (
+		goto SelectCmdExecute
+	) || (
+		rem Ö¸¶¨ÒªÔËÐÐ³ÌÐò¶àÉÙ´Î(¶ÔÓ¦µÚ¶þ¸ö²ÎÊý£¬Ä¬ÈÏÎª1)
+		if defined num (
+			set runTimes=%2
+		)
+		goto OpenAndExit
+	)
+	
 )
 
-rem å‘½ä»¤åˆ—è¡¨
+
+rem --------------------------------------------------------------------------------------------------------------
+rem ÃüÁîÁÐ±í
 :ShowOperations
 echo [zq]$ * Currently available operations : 
 echo [zq]$ *	-- ls		(shows all commands)
 echo [zq]$ *	-- edit		(edit this custom commands script,this operation needs to restart the script)
 echo [zq]$ *	-- editCommands	(edit commands map file, and reload the file automatelly)
+echo [zq]$ *	-- admin	(run as administrator)
 echo [zq]$ *	-- ***		(custom commands)
 echo [zq]$ *	-- exit		(exit system)
 goto EnterTip
 
-rem æç¤ºè¾“å…¥å‘½ä»¤
+
+rem --------------------------------------------------------------------------------------------------------------
+rem ÌáÊ¾ÊäÈëÃüÁî
 :EnterTip
-echo [zq]$ Please select and the click the return button:
+echo [zq]$ Please select and the click the return button£º
 goto SelectCmdMain
 
-rem å‘½ä»¤é€‰æ‹©
+
+rem --------------------------------------------------------------------------------------------------------------
+rem ÃüÁîÑ¡Ôñ
 :SelectCmdMain
 set operate=
 set /p operate=
+goto SelectCmdExecute
+
+:SelectCmdExecute
 if "%operate%" equ ""			(goto SelectCmdMain)
 if "%operate%" equ "?"			(goto ShowOperations)
+if "%operate%" equ "help"		(goto ShowOperations)
 if "%operate%" equ "ls"			(goto ShowCmds)
 if "%operate%" equ "edit"		(goto EditScript)
 if "%operate%" equ "editCommands"	(goto EditCommandsMap)
+if "%operate%" equ "admin"		(goto admin)
 if "%operate%" equ "exit"		(goto ExitCus)
 goto OpenApp
 
-rem æ˜¾ç¤ºå½“å‰æ‰€æ”¯æŒçš„æ‰€æœ‰å‘½ä»¤
+
+rem --------------------------------------------------------------------------------------------------------------
+rem ÏÔÊ¾µ±Ç°ËùÖ§³ÖµÄËùÓÐÃüÁî
 :ShowCmds
 echo [zq]$ The command supported at present are:
 echo [zq]$ 	-- %all%
 goto EnterTip
 
-rem é€€å‡ºå‘½ä»¤ç•Œé¢
+
+rem --------------------------------------------------------------------------------------------------------------
+rem ÍË³öÃüÁî½çÃæ
 :ExitCus
 exit
 
-rem ç¼–è¾‘æœ¬è„šæœ¬
+
+rem --------------------------------------------------------------------------------------------------------------
+rem ±à¼­±¾½Å±¾
 :EditScript
 echo [zq]$ The main script edit started...
 notepad %MAIN_FILE%
-
 echo [zq]$ The main script edited...
 goto ShowCmds
 
-rem ç¼–è¾‘æœ¬è„šæœ¬
+
+rem --------------------------------------------------------------------------------------------------------------
+rem ±à¼­±¾½Å±¾
 :EditCommandsMap
 echo [zq]$ The %CONFIG_FILE% edit started...
 notepad %CONFIG_FILE%
 echo [zq]$ The %CONFIG_FILE% edited...
 goto InitConfigFile
 
-rem æ‰“å¼€åº”ç”¨åŽè¿”å›žåˆ°åº”ç”¨é€‰æ‹©ç•Œé¢
+
+rem --------------------------------------------------------------------------------------------------------------
+rem Ê¹ÓÃ¹ÜÀíÔ±ÔËÐÐ
+:admin
+if exist "%SystemRoot%\SysWOW64" path %path%;%windir%\SysNative;%SystemRoot%\SysWOW64;%~dp0
+bcdedit >nul
+if '%errorlevel%' NEQ '0' (
+	goto adminExecute
+) else (
+	echo [zq]$ This window has already run as administrator
+	rem ·µ»Ø½Å±¾Ä¿Â¼
+	cd /d "%~dp0"
+)
+goto ShowCmds
+
+rem ÇÐ»»¹ÜÀíÔ±´°¿Ú
+:adminExecute
+rem %1 start "" mshta vbscript:createobject("shell.application").shellexecute("""%~0""","::",,"runas",1)(window.close)&exit
+start "" mshta vbscript:createobject("shell.application").shellexecute("""%~0""","::",,"runas",1)(window.close)&exit
+
+
+rem --------------------------------------------------------------------------------------------------------------
+rem ´ò¿ªÓ¦ÓÃºó·µ»Øµ½Ó¦ÓÃÑ¡Ôñ½çÃæ
 :OpenApp
-echo %all%|findstr "%operate%" >nul
-if %errorlevel%==0 (
+echo %all%|findstr /c:"%operate%" >nul && (
 	set cuscmd=!%operate%!
 	if "!cuscmd!" equ "" (
-		echo [zq]$ [Error]: This command need a property execute path
+		echo [zq]$ [Error]: This command [%operate%] need a property execute path
 	) else (
 		echo [zq]$ !cuscmd! starting...
-		echo !cuscmd!|findstr ":" >nul
-		if %errorlevel% equ 0 (
-			start "%operate%" !cuscmd!
-		) else (
+		rem Èç¹ûÊÇÓ¦ÓÃ³ÌÐòÂ·¾¶£¬ÔòÊ¹ÓÃstartÖ±½ÓÖ´ÐÐ¶ÔÓ¦Â·¾¶£¬·ñÔò£¬Ö±½ÓÖ´ÐÐ¶ÔÓ¦ÃüÁî
+		echo !cuscmd!|findstr ":" >nul && (
+			for /l %%a in (1,1,%runTimes%) do (
+				start "%operate%" !cuscmd!
+			)
+		) || (
 			!cuscmd!
 		)	
 		echo [zq]$ !cuscmd! started...
 	)
-) else (
+) || (
 	cmd /c %operate%
 	rem echo [zq]$ [Error]: Could not find the command : %operate%
 	rem pause
@@ -120,28 +186,31 @@ if %errorlevel%==0 (
 goto ShowCmds
 
 
-rem æ‰“å¼€åº”ç”¨åŽé€€å‡ºå‘½ä»¤ç•Œé¢
+rem --------------------------------------------------------------------------------------------------------------
+rem ´ò¿ªÓ¦ÓÃºóÍË³öÃüÁî½çÃæ
 :OpenAndExit
-echo %all%|findstr %operate% >nul
-if %errorlevel%==0 (
+echo %operate%
+echo %all%|findstr %operate% >nul && (
 	set cuscmd=!%operate%!
 	if "!cuscmd!" equ "" (
-		echo [zq]$ [Error]: This command need a proper execute path
+		echo [zq]$ [Error]: This command [%operate%] need a proper execute path
 		pause
 		goto ShowCmds
 	) else (
 		echo [zq]$ !cuscmd! starting...
-		echo !cuscmd!|findstr ":" >nul
-		if %errorlevel% equ 0 (
-			start "%operate%" !cuscmd!
-		) else (
+		rem Èç¹ûÊÇÓ¦ÓÃ³ÌÐòÂ·¾¶£¬ÔòÊ¹ÓÃstartÖ±½ÓÖ´ÐÐ¶ÔÓ¦Â·¾¶£¬·ñÔò£¬Ö±½ÓÖ´ÐÐ¶ÔÓ¦ÃüÁî
+		echo !cuscmd!| findstr /c:":" >nul && (
+			for /l %%a in (1,1,%runTimes%) do (
+				start "%operate%" !cuscmd!
+			)
+		) || (
 			!cuscmd!
 		)	
 		echo [zq]$ !cuscmd! started...
 	)
 	ping -n 1 127.0.0.1 >nul
 	goto ExitCus
-) else (
+) || (
 	cmd /c %operate%
 	rem echo [zq]$ [Error]: Could not find the command : %operate%
 	rem pause
@@ -155,41 +224,42 @@ if %errorlevel%==0 (
 
 
 
-rem è®°å½•è„šæœ¬ä¿®æ”¹åŽ†å²
+rem ¼ÇÂ¼½Å±¾ÐÞ¸ÄÀúÊ·
 rem =============================================================================
 goto modifyLog
-	20160808--åˆ›å»ºæœ¬è‡ªå®šä¹‰è„šæœ¬ï¼Œç”¨äºŽå¿«é€Ÿå¯åŠ¨å¸¸ç”¨è½¯ä»¶
-	20190408--å‘½ä»¤è·¯å¾„é…ç½®æ–‡ä»¶å…ˆä»Žç”¨æˆ·ç›®å½•å–ï¼Œå¦‚æžœæ²¡æœ‰åˆ™ä»Žå‘½ä»¤æ‰§è¡Œçš„å½“å‰ç›®å½•å–
-	20190409--ä¸ºç‰¹æ®Šåº”ç”¨åˆ›å»ºvbsè„šæœ¬ï¼Œè¯¥ç±»åº”ç”¨å¯åŠ¨åŽè¿è¡Œæ—¥å¿—ä¼šåœ¨æŽ§åˆ¶å°è¾“å‡ºï¼Œé€šè¿‡vbsè„šæœ¬æ‰§è¡Œå¯ä»¥é˜²æ­¢æŽ§åˆ¶å°å…³é—­åŽç¨‹åºé€€å‡ºçš„é—®é¢˜ï¼Œè„šæœ¬è§ä¸‹æ–¹é™„å½•
-	20190417--æ–°å¢žå¯åŠ¨ç½‘ç»œæœåŠ¡çš„åˆ¤æ–­ï¼Œç›®å‰åˆ¤æ–­è·¯å¾„ä¸­æ˜¯å¦å­˜åœ¨":"ï¼Œå¦‚æžœæœ‰åˆ™æ˜¯ç¨‹åºï¼Œå¦‚æžœæ²¡æœ‰åˆ™æ˜¯æœåŠ¡
+	20160808--´´½¨±¾×Ô¶¨Òå½Å±¾£¬ÓÃÓÚ¿ìËÙÆô¶¯³£ÓÃÈí¼þ
+	20190408--ÃüÁîÂ·¾¶ÅäÖÃÎÄ¼þÏÈ´ÓÓÃ»§Ä¿Â¼È¡£¬Èç¹ûÃ»ÓÐÔò´ÓÃüÁîÖ´ÐÐµÄµ±Ç°Ä¿Â¼È¡
+	20190409--ÎªÌØÊâÓ¦ÓÃ´´½¨vbs½Å±¾£¬¸ÃÀàÓ¦ÓÃÆô¶¯ºóÔËÐÐÈÕÖ¾»áÔÚ¿ØÖÆÌ¨Êä³ö£¬Í¨¹ývbs½Å±¾Ö´ÐÐ¿ÉÒÔ·ÀÖ¹¿ØÖÆÌ¨¹Ø±Õºó³ÌÐòÍË³öµÄÎÊÌâ£¬½Å±¾¼ûÏÂ·½¸½Â¼
+	20190417--ÐÂÔöÆô¶¯ÍøÂç·þÎñµÄÅÐ¶Ï£¬Ä¿Ç°ÅÐ¶ÏÂ·¾¶ÖÐÊÇ·ñ´æÔÚ":"£¬Èç¹ûÓÐÔòÊÇ³ÌÐò£¬Èç¹ûÃ»ÓÐÔòÊÇ·þÎñ
+	20200411--ÐÂÔöÔÊÐíÍ¬Ê±Æô¶¯¶à¸öÓ¦ÓÃ½ø³Ì£¬¶ÔÓ¦²ÎÊýÎªrunTimes£¬Ä¿Ç°½öÖ§³ÖOpenAndExit·½·¨
 :modifyLog
 
 
 
 
-rem é™„å½•:
+rem ¸½Â¼£º
 rem ==============================================================================
 goto appendix
-	é™„å½•1:
-		é…ç½®æ–‡ä»¶:
+	¸½Â¼1:
+		ÅäÖÃÎÄ¼þ:
 			cusAppMapping.ini
-		é…ç½®æ–‡ä»¶å†…å®¹:
+		ÅäÖÃÎÄ¼þÄÚÈÝ:
 			work="C:\Users\zhaoqi1\Desktop\work"
 			ie="C:\Program Files\Internet Explorer\iexplore.exe"
 			mysql=net start mysql
 			postman=C:\Users\zhaoqi1\AppData\Local\Postman\Update.exe --processStart "Postman.exe"
-		æ³¨æ„äº‹é¡¹:
-			è·¯å¾„ä¸­æœ‰ç©ºæ ¼æ—¶ï¼Œéœ€è¦å‰åŽåŠ åŒå¼•å·
+		×¢ÒâÊÂÏî:
+			Â·¾¶ÖÐÓÐ¿Õ¸ñÊ±£¬ÐèÒªÇ°ºó¼ÓË«ÒýºÅ
 
-	é™„å½•2:
-		ç‰¹æ®Šæ–‡ä»¶:
-			é¾™ä¿¡.vbs
-		æ–‡ä»¶è¯´æ˜Ž:
-			ç”±äºŽæŸäº›ç¨‹åºå¯åŠ¨åŽæŽ§åˆ¶å°ä¼šç»§ç»­è¾“å‡ºæ—¥å¿—ï¼Œå¯¼è‡´å…³é—­æŽ§åˆ¶å°åŽç¨‹åºä¹Ÿä¼šé€€å‡ºï¼Œä½¿ç”¨vbsæ–¹å¼å¯ä»¥è§£å†³
-		æ–‡ä»¶å†…å®¹:
+	¸½Â¼2:
+		ÌØÊâÎÄ¼þ:
+			ÁúÐÅ.vbs
+		ÎÄ¼þËµÃ÷:
+			ÓÉÓÚÄ³Ð©³ÌÐòÆô¶¯ºó¿ØÖÆÌ¨»á¼ÌÐøÊä³öÈÕÖ¾£¬µ¼ÖÂ¹Ø±Õ¿ØÖÆÌ¨ºó³ÌÐòÒ²»áÍË³ö£¬Ê¹ÓÃvbs·½Ê½¿ÉÒÔ½â¾ö
+		ÎÄ¼þÄÚÈÝ:
 			Dim WinScriptHost 
 			Set WinScriptHost = CreateObject("WScript.Shell") 
-			WinScriptHost.Run Chr(34) & "D:\Program Files\é¾™ä¿¡\é¾™ä¿¡.exe" & Chr(34), 0 
+			WinScriptHost.Run Chr(34) & "D:\Program Files\ÁúÐÅ\ÁúÐÅ.exe" & Chr(34), 0 
 			Set WinScriptHost = Nothing
 :appendix
 

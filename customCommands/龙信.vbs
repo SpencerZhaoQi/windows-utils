@@ -1,4 +1,4 @@
 Dim WinScriptHost 
 Set WinScriptHost = CreateObject("WScript.Shell") 
-WinScriptHost.Run Chr(34) & "D:\Program Files\é¾™ä¿¡\é¾™ä¿¡.exe" & Chr(34), 0 
+WinScriptHost.Run Chr(34) & "D:\Program Files\ÁúÐÅ\ÁúÐÅ.exe" & Chr(34), 0 
 Set WinScriptHost = Nothing

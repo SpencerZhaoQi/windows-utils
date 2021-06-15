@@ -1,6 +1,6 @@
 @echo off
 
-rem ���������ʶ��·��
+rem 设置命令标识与路径
 
 setlocal ENABLEDELAYEDEXPANSION
 
@@ -24,41 +24,41 @@ echo [zq]$ _____________________________________________________________________
 
 
 rem --------------------------------------------------------------------------------------------------------------
-rem �������ļ��ж�ȡ����
+rem 从配置文件中读取内容
 :InitConfigFile
 rem set ROOT=%cd%
 set MAIN_FILE=%~dp0\cus.bat
-rem ����·�������ļ��ȴ��û�Ŀ¼ȡ�����û���������ִ�еĵ�ǰĿ¼ȡ
+rem 命令路径配置文件先从用户目录取，如果没有则从命令执行的当前目录取
 set CONFIG_FILE=%UserProfile%\cusAppMapping.ini
 if not exist %CONFIG_FILE% (
 	set CONFIG_FILE=%~dp0\cusAppMapping.ini
 ) 
 echo [zq]$ currently use %CONFIG_FILE%
-rem ���ù�������
+rem 设置固有命令
 set inherent=ls,edit,editCommands,admin,exit
 set commands=ls
-FOR /F "tokens=1,2 delims==" %%i in (%CONFIG_FILE%) DO (
+FOR /F "tokens=1,2 delims===" %%i in (%CONFIG_FILE%) DO (
  set %%i=%%j
  set commands=!commands!,%%i
 )
 set all=!inherent!,!commands!
-
+echo !jira!
 
 rem --------------------------------------------------------------------------------------------------------------
-rem ����Ӧ�ó���ִ�д�����Ĭ��Ϊ1
+rem 设置应用程序执行次数，默认为1
 set runTimes=1
 
-rem ���ִ��ʱָ����Ӧ�ò�������ֱ�Ӵ򿪲�������Ӧ��Ŀ¼
+rem 如果执行时指定了应用参数，则直接打开参数所对应的目录
 set opr=%1
 set num=%2
 
 if defined opr (
 	set operate=%1
-	rem ���Ϊ����������������ѡ��������Ϊ������������Ӧ�ô򿪹رճ���
+	rem 如果为固有命令，则进入命令选择程序，如果为其他命令，则进入应用打开关闭程序
 	echo %inherent%|findstr "%1" >nul && (
 		goto SelectCmdExecute
 	) || (
-		rem ָ��Ҫ���г�����ٴ�(��Ӧ�ڶ���������Ĭ��Ϊ1)
+		rem 指定要运行程序多少次(对应第二个参数，默认为1)
 		if defined num (
 			set runTimes=%2
 		)
@@ -69,7 +69,7 @@ if defined opr (
 
 
 rem --------------------------------------------------------------------------------------------------------------
-rem �����б�
+rem 命令列表
 :ShowOperations
 echo [zq]$ * Currently available operations : 
 echo [zq]$ *	-- ls		(shows all commands)
@@ -82,14 +82,14 @@ goto EnterTip
 
 
 rem --------------------------------------------------------------------------------------------------------------
-rem ��ʾ��������
+rem 提示输入命令
 :EnterTip
-echo [zq]$ Please select and the click the return button��
+echo [zq]$ Please select and the click the return button：
 goto SelectCmdMain
 
 
 rem --------------------------------------------------------------------------------------------------------------
-rem ����ѡ��
+rem 命令选择
 :SelectCmdMain
 set operate=
 set /p operate=
@@ -108,7 +108,7 @@ goto OpenApp
 
 
 rem --------------------------------------------------------------------------------------------------------------
-rem ��ʾ��ǰ��֧�ֵ���������
+rem 显示当前所支持的所有命令
 :ShowCmds
 echo [zq]$ The command supported at present are:
 echo [zq]$ 	-- %all%
@@ -116,13 +116,13 @@ goto EnterTip
 
 
 rem --------------------------------------------------------------------------------------------------------------
-rem �˳��������
+rem 退出命令界面
 :ExitCus
 exit
 
 
 rem --------------------------------------------------------------------------------------------------------------
-rem �༭���ű�
+rem 编辑本脚本
 :EditScript
 echo [zq]$ The main script edit started...
 notepad %MAIN_FILE%
@@ -131,7 +131,7 @@ goto ShowCmds
 
 
 rem --------------------------------------------------------------------------------------------------------------
-rem �༭���ű�
+rem 编辑本脚本
 :EditCommandsMap
 echo [zq]$ The %CONFIG_FILE% edit started...
 notepad %CONFIG_FILE%
@@ -140,7 +140,7 @@ goto InitConfigFile
 
 
 rem --------------------------------------------------------------------------------------------------------------
-rem ʹ�ù���Ա����
+rem 使用管理员运行
 :admin
 if exist "%SystemRoot%\SysWOW64" path %path%;%windir%\SysNative;%SystemRoot%\SysWOW64;%~dp0
 bcdedit >nul
@@ -148,19 +148,19 @@ if '%errorlevel%' NEQ '0' (
 	goto adminExecute
 ) else (
 	echo [zq]$ This window has already run as administrator
-	rem ���ؽű�Ŀ¼
+	rem 返回脚本目录
 	cd /d "%~dp0"
 )
 goto ShowCmds
 
-rem �л�����Ա����
+rem 切换管理员窗口
 :adminExecute
 rem %1 start "" mshta vbscript:createobject("shell.application").shellexecute("""%~0""","::",,"runas",1)(window.close)&exit
 start "" mshta vbscript:createobject("shell.application").shellexecute("""%~0""","::",,"runas",1)(window.close)&exit
 
 
 rem --------------------------------------------------------------------------------------------------------------
-rem ��Ӧ�ú󷵻ص�Ӧ��ѡ�����
+rem 打开应用后返回到应用选择界面
 :OpenApp
 echo %all%|findstr /c:"%operate%" >nul && (
 	set cuscmd=!%operate%!
@@ -168,7 +168,7 @@ echo %all%|findstr /c:"%operate%" >nul && (
 		echo [zq]$ [Error]: This command [%operate%] need a property execute path
 	) else (
 		echo [zq]$ !cuscmd! starting...
-		rem �����Ӧ�ó���·������ʹ��startֱ��ִ�ж�Ӧ·��������ֱ��ִ�ж�Ӧ����
+		rem 如果是应用程序路径，则使用start直接执行对应路径，否则，直接执行对应命令
 		echo !cuscmd!|findstr ":" >nul && (
 			for /l %%a in (1,1,%runTimes%) do (
 				start "%operate%" !cuscmd!
@@ -187,7 +187,7 @@ goto ShowCmds
 
 
 rem --------------------------------------------------------------------------------------------------------------
-rem ��Ӧ�ú��˳��������
+rem 打开应用后退出命令界面
 :OpenAndExit
 echo %operate%
 echo %all%|findstr %operate% >nul && (
@@ -198,7 +198,7 @@ echo %all%|findstr %operate% >nul && (
 		goto ShowCmds
 	) else (
 		echo [zq]$ !cuscmd! starting...
-		rem �����Ӧ�ó���·������ʹ��startֱ��ִ�ж�Ӧ·��������ֱ��ִ�ж�Ӧ����
+		rem 如果是应用程序路径，则使用start直接执行对应路径，否则，直接执行对应命令
 		echo !cuscmd!| findstr /c:":" >nul && (
 			for /l %%a in (1,1,%runTimes%) do (
 				start "%operate%" !cuscmd!
@@ -224,43 +224,46 @@ echo %all%|findstr %operate% >nul && (
 
 
 
-rem ��¼�ű��޸���ʷ
+rem 记录脚本修改历史
 rem =============================================================================
 goto modifyLog
-	20160808--�������Զ���ű������ڿ�����������������
-	20190408--����·�������ļ��ȴ��û�Ŀ¼ȡ�����û���������ִ�еĵ�ǰĿ¼ȡ��
-	20190409--Ϊ����Ӧ�ô���vbs�ű�������Ӧ��������������־���ڿ���̨�����ͨ��vbs�ű�ִ�п��Է�ֹ����̨�رպ�����˳������⣬�ű����·���¼��
-	20190417--�����������������жϣ�Ŀǰ�ж�·�����Ƿ����":"����������ǳ������û�����Ƿ���
-	20200411--��������ͬʱ�������Ӧ�ý��̣���Ӧ����ΪrunTimes��Ŀǰ��֧��OpenAndExit������
-	20200825--����run as administrator��������Ҫ���ڲ�����Ҫ��administratorȨ�޲���������windows�������磬net start mysql�ȡ�
+	20160808--创建本自定义脚本，用于快速启动常用软件。
+	20190408--命令路径配置文件先从用户目录取，如果没有则从命令执行的当前目录取。
+	20190409--为特殊应用创建vbs脚本，该类应用启动后运行日志会在控制台输出，通过vbs脚本执行可以防止控制台关闭后程序退出的问题，脚本见下方附录。
+	20190417--新增启动网络服务的判断，目前判断路径中是否存在":"，如果有则是程序，如果没有则是服务。
+	20200411--新增允许同时启动多个应用进程，对应参数为runTimes，目前仅支持OpenAndExit方法。
+	20200825--新增run as administrator操作，主要用于部分需要用administrator权限才能启动的windows服务。例如，net start mysql等。
+	20210615--将路径配置文件中的"="都换为"=="，主要为了解决路径中可能带有参数（参数中有等号）而原先程序通过等号来判断自定义命令和命令路径。
 :modifyLog
 
 
 
 
-rem ��¼��
+rem 附录：
 rem ==============================================================================
 goto appendix
-	��¼1:
-		�����ļ�:
+	附录1:
+		配置文件:
 			cusAppMapping.ini
-		�����ļ�����:
-			work="C:\Users\zhaoqi1\Desktop\work"
-			ie="C:\Program Files\Internet Explorer\iexplore.exe"
-			mysql=net start mysql
-			postman=C:\Users\zhaoqi1\AppData\Local\Postman\Update.exe --processStart "Postman.exe"
-		ע������:
-			·�����пո�ʱ����Ҫǰ���˫����
+		配置文件内容:
+			work=="C:\Users\zhaoqi1\Desktop\work"
+			ie=="C:\Program Files\Internet Explorer\iexplore.exe"
+			mysql==net start mysql
+			postman==C:\Users\zhaoqi1\AppData\Local\Postman\Update.exe --processStart "Postman.exe"
+			jira==!chrome! "https://jira.shdev.net/secure/Tempo.jspa#/my-work/week?type=LIST"
+		注意事项:
+			路径中有空格时，需要前后加双引号
+			路径中如果用到其他路径，则可以使用"!其他路径!"的方式进行引用
 
-	��¼2:
-		�����ļ�:
-			����.vbs
-		�ļ�˵��:
-			����ĳЩ�������������̨����������־�����¹رտ���̨�����Ҳ���˳���ʹ��vbs��ʽ���Խ��
-		�ļ�����:
+	附录2:
+		特殊文件:
+			龙信.vbs
+		文件说明:
+			由于某些程序启动后控制台会继续输出日志，导致关闭控制台后程序也会退出，使用vbs方式可以解决
+		文件内容:
 			Dim WinScriptHost 
 			Set WinScriptHost = CreateObject("WScript.Shell") 
-			WinScriptHost.Run Chr(34) & "D:\Program Files\����\����.exe" & Chr(34), 0 
+			WinScriptHost.Run Chr(34) & "D:\Program Files\龙信\龙信.exe" & Chr(34), 0 
 			Set WinScriptHost = Nothing
 :appendix
 

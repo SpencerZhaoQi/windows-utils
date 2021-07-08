@@ -84,7 +84,7 @@ goto EnterTip
 rem --------------------------------------------------------------------------------------------------------------
 rem 提示输入命令
 :EnterTip
-echo [zq]$ Please select and the click the return button：
+echo [zq]$ Please select and the click the return button:
 goto SelectCmdMain
 
 

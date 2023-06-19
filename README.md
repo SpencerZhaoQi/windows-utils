@@ -1,10 +1,10 @@
 # windows-utils
 designed by Spencer Zhao
 
-# 功能说明
+# 一、功能说明
 在命令行输入cus+软件标识，可直接启动对应程序或服务。无需鼠标各种点击或者查找
 
-# 使用方法
+# 二、使用方法
 ## 1. 下载文件
 将cus.bat和cusAppMapping.ini文件拷贝到windows用户目录下（例如："C:\Users\user"）
 ## 2. 配置文件修改
@@ -14,7 +14,7 @@ designed by Spencer Zhao
 - 在输入框输入cus [软件关键字]，可直接启动该软件，并自动关掉命令提示窗口
 - 在输入框输入cus [软件关键字] [启动数量]，可以启动该软件多个实力，用来软件多开
 
-# 配置说明
+# 三、配置说明
 ## 配置文件:
 cusAppMapping.ini
 ## 配置文件内容示例:

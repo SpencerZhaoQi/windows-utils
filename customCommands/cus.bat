@@ -84,7 +84,7 @@ goto EnterTip
 rem --------------------------------------------------------------------------------------------------------------
 rem 提示输入命令
 :EnterTip
-echo [zq]$ Please select and the click the return button:
+echo [zq]$ Please select and the click the return button：
 goto SelectCmdMain
 
 
@@ -234,6 +234,7 @@ goto modifyLog
 	20200411--新增允许同时启动多个应用进程，对应参数为runTimes，目前仅支持OpenAndExit方法。
 	20200825--新增run as administrator操作，主要用于部分需要用administrator权限才能启动的windows服务。例如，net start mysql等。
 	20210615--将路径配置文件中的"="都换为"=="，主要为了解决路径中可能带有参数（参数中有等号）而原先程序通过等号来判断自定义命令和命令路径。
+	20230619--配置文件中如果需要指定启动目录，可以直接在"=="后加上 /d {path} {启动项}，注意这是start命令的固有属性，可以直接用
 :modifyLog
 
 
@@ -242,28 +243,49 @@ goto modifyLog
 rem 附录：
 rem ==============================================================================
 goto appendix
-	附录1:
-		配置文件:
-			cusAppMapping.ini
-		配置文件内容:
-			work=="C:\Users\zhaoqi1\Desktop\work"
-			ie=="C:\Program Files\Internet Explorer\iexplore.exe"
-			mysql==net start mysql
-			postman==C:\Users\zhaoqi1\AppData\Local\Postman\Update.exe --processStart "Postman.exe"
-			jira==!chrome! "https://jira.shdev.net/secure/Tempo.jspa#/my-work/week?type=LIST"
-		注意事项:
-			路径中有空格时，需要前后加双引号
-			路径中如果用到其他路径，则可以使用"!其他路径!"的方式进行引用
+	# 配置说明
+	## 配置文件:
+	cusAppMapping.ini
+	## 配置文件内容示例:
+	#### 1.路径无空格，例如打开一个文件夹
+	```
+	work=="C:\Users\user\Desktop\work" 或 work==C:\Users\user\Desktop\work
+	```
+	#### 2.路径有空格，需要加双引号，例如打开微信：
+	```
+	wx=="D:\Program Files\Tencent\WeChat\WeChat.exe"
+	```
+	#### 3.程序启动项需要跟参数的情况，直接跟参数即可，例如打开postman或chrome浏览器
+	```
+	postman==C:\Users\user\AppData\Local\Postman\Update.exe --processStart "Postman.exe"
+	chrome=="C:\Program Files\Google\Chrome\Application\chrome.exe" -ignore-certificate-errors
+	```
+	#### 4.程序启动时需要指定运行目录的情况，可以加/d [启动路径]，例如启动sd
+	```
+	sd==/d "G:\Program Files\SD启动器安装\sd-webui-aki\sd-webui-aki-v4.1" "A启动器.exe"
+	```
+	#### 5.运行一个服务，例如启动mysql：
+	```
+	mysql==net start mysql
+	```
+	#### 6.启动某个网页，需要使用双叹号来引用浏览器的启动项，例如启动jira：
+	```
+	chrome=="C:\Program Files\Google\Chrome\Application\chrome.exe"
+	jira==!chrome! "https://jira.xxxxxxx.net/secure/Tempo.jspa#/my-work/week?type=LIST"
+	```
+	  
+	## 注意事项:
+	  路径中有空格时，需要前后加双引号
+	  路径中如果用到其他路径，则可以使用"!其他路径!"的方式进行引用
 
-	附录2:
-		特殊文件:
-			龙信.vbs
-		文件说明:
-			由于某些程序启动后控制台会继续输出日志，导致关闭控制台后程序也会退出，使用vbs方式可以解决
-		文件内容:
-			Dim WinScriptHost 
-			Set WinScriptHost = CreateObject("WScript.Shell") 
-			WinScriptHost.Run Chr(34) & "D:\Program Files\龙信\龙信.exe" & Chr(34), 0 
-			Set WinScriptHost = Nothing
+	## 特殊情况：
+	由于某些程序启动后控制台会继续输出日志，导致关闭控制台后程序也会退出，使用vbs方式可以解决：
+	例如AAA.exe文件有这个问题，可以编写AAA.vbs脚本，通过启动vbs脚本来启动程序。文件内容:
+	```
+	Dim WinScriptHost 
+	Set WinScriptHost = CreateObject("WScript.Shell") 
+	WinScriptHost.Run Chr(34) & "D:\Program Files\AAA\AAA.exe" & Chr(34), 0 
+	Set WinScriptHost = Nothing
+	```
 :appendix
 
